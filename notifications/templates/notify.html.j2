@@ -1,0 +1,15 @@
+{% extends "base.html.j2" %}
+
+
+{% block content %}
+
+<h1>Create a notification manually</h1>
+
+<form action="{% url 'create notification' %}" method="POST">
+
+{{ notification_form.as_p }}
+<br>
+<button class="btn btn-primary" type="submit">submit</button>
+</form>
+
+{% endblock content %}
