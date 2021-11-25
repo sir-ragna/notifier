@@ -12,3 +12,17 @@ class NotificationForm(forms.Form):
         widget=forms.TextInput(
             attrs={'class': 'form-control', 'placeholder': 'system xyz'}))    
     attachment = forms.FileField(required=False)
+
+class FilterForm(forms.Form):
+    time = forms.DateTimeField(label="Events Before",required=False,
+        widget=forms.DateTimeInput(attrs={'type': 'datetime-local','class': 'form-control datetimepicker-input'})
+            )   
+    description = forms.CharField(max_length=1024,required=False,
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': 'Contained in description'}))
+    customer = forms.CharField(max_length=100,label="Customer",required=False,
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': 'Customer'}))
+    system = forms.CharField(max_length=100,label="system",required=False,
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': 'System'}))   

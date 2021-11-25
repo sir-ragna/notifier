@@ -2,10 +2,29 @@
 
 {% block content %}
 
+<div class="row">
+    <div class="col">
 <a href="{% url 'index' %}?amount={{ amount }}&page={{ previous }}"
 >Previous</a>
+<br>
 <a href="{% url 'index' %}?amount={{ amount }}&page={{ nextpage }}"
 >Next</a>
+    </div>
+    <div class="col">
+    <form method="GET">
+    <table>
+        {{ filter_form.as_table }}
+        {% csrf_token %}
+        <tr>
+        <td><a href="{% url 'index' %}"><button type="button" class="btn btn-secondary">Reset</button></a></td>
+        <td><button class="btn btn-primary" type="submit">Apply</button></td>
+        </tr>
+    </table>
+    </form>
+    </div>
+</div>
+
+<hr>
 
 <table class="table">
 <tr>
@@ -24,7 +43,10 @@
         <td>{{ n.system }}</td>
     </tr>
 {% endfor %}
+
 </table>
+
+
 <hr>
 <a href="{% url 'create notification' %}"
 >Manually create a notification</a>

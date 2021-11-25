@@ -15,18 +15,27 @@ def index(request):
     Shows the last 100 notifications (with infinite scroll?)
     """
     page = 0
+    filter_form = forms.FilterForm(request.GET)
     if request.method == 'GET' and 'amount' in request.GET:
         amount = abs(int(request.GET['amount']))
         if 'page' in request.GET:
             page = abs(int(request.GET['page']))
     else:
         amount = 10
-    notifications = models.Notification.objects.order_by('-time')[page * amount:(page + 1) * amount]
+    if filter_form.is_valid():
+        time = filter_form.cleaned_data['time'] # filter elements before time
+        customer = filter_form.cleaned_data['customer']
+        system = filter_form.cleaned_data['system']
+        description = filter_form.cleaned_data['description']
+        notifications = models.Notification.objects.filter(customer__icontains=customer, system__icontains=system, description__icontains=description).order_by('-time')[page * amount:(page + 1) * amount]
+    else:
+        notifications = models.Notification.objects.order_by('-time')[page * amount:(page + 1) * amount]
     return render(request, "index.html.j2", {
         'notifications': notifications,
         'nextpage': page + 1,
         'previous': page - 1,
         'amount': amount,
+        'filter_form': filter_form,
     })
 
 @csrf_exempt # We'll call this from scripts, not just from webpages (maybe consider ratelimiting)
