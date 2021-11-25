@@ -14,9 +14,19 @@ def index(request):
     """
     Shows the last 100 notifications (with infinite scroll?)
     """
-    notifications = models.Notification.objects.all()
+    page = 0
+    if request.method == 'GET' and 'amount' in request.GET:
+        amount = abs(int(request.GET['amount']))
+        if 'page' in request.GET:
+            page = abs(int(request.GET['page']))
+    else:
+        amount = 10
+    notifications = models.Notification.objects.order_by('-time')[page * amount:(page + 1) * amount]
     return render(request, "index.html.j2", {
-        'notifications': notifications
+        'notifications': notifications,
+        'nextpage': page + 1,
+        'previous': page - 1,
+        'amount': amount,
     })
 
 @csrf_exempt # We'll call this from scripts, not just from webpages (maybe consider ratelimiting)

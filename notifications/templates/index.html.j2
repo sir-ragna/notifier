@@ -2,6 +2,10 @@
 
 {% block content %}
 
+<a href="{% url 'index' %}?amount={{ amount }}&page={{ previous }}"
+>Previous</a>
+<a href="{% url 'index' %}?amount={{ amount }}&page={{ nextpage }}"
+>Next</a>
 
 <table class="table">
 <tr>
