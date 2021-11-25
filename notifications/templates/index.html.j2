@@ -1,0 +1,28 @@
+{% extends "base.html.j2" %}
+
+{% block content %}
+
+
+<table class="table">
+<tr>
+    <th>id</td>
+    <th>Time</th>
+    <th>Description</th>
+    <th>Customer</th>
+    <th>System</th>
+</tr>
+{% for n in notifications %}
+    <tr>
+        <td>{{ n.id }}</td>
+        <td>{{ n.time }}</td>
+        <td>{{ n.description }}</td>
+        <td>{{ n.customer }}</td>
+        <td>{{ n.system }}</td>
+    </tr>
+{% endfor %}
+</table>
+<hr>
+<a href="{% url 'create notification' %}"
+>Manually create a notification</a>
+
+{% endblock content %}

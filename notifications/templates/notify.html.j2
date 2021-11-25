@@ -2,9 +2,10 @@
 
 
 {% block content %}
-
+<a href="{% url 'index' %}">Back to main page</a>
+<hr>
 <h1>Create a notification manually</h1>
-
+<hr>
 <form action="{% url 'create notification' %}" method="POST">
 
 {{ notification_form.as_p }}
