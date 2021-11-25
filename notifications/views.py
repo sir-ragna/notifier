@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
+from django.utils import timezone
 
 import datetime
 
@@ -16,6 +17,7 @@ def index(request):
     """
     page = 0
     filter_form = forms.FilterForm(request.GET)
+
     if request.method == 'GET' and 'amount' in request.GET:
         amount = abs(int(request.GET['amount']))
         if 'page' in request.GET:
@@ -24,10 +26,14 @@ def index(request):
         amount = 10
     if filter_form.is_valid():
         time = filter_form.cleaned_data['time'] # filter elements before time
+        if not time:
+            #time = datetime.datetime.now()
+            time = timezone.now()
+            filter_form.cleaned_data['time'] = time
         customer = filter_form.cleaned_data['customer']
         system = filter_form.cleaned_data['system']
         description = filter_form.cleaned_data['description']
-        notifications = models.Notification.objects.filter(customer__icontains=customer, system__icontains=system, description__icontains=description).order_by('-time')[page * amount:(page + 1) * amount]
+        notifications = models.Notification.objects.filter(customer__icontains=customer, system__icontains=system, description__icontains=description, time__lte=time).order_by('-time')[page * amount:(page + 1) * amount]
     else:
         notifications = models.Notification.objects.order_by('-time')[page * amount:(page + 1) * amount]
     return render(request, "index.html.j2", {

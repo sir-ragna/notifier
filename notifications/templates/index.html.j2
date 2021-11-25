@@ -37,7 +37,7 @@
 {% for n in notifications %}
     <tr>
         <td>{{ n.id }}</td>
-        <td>{{ n.time }}</td>
+        <td>{{ n.time | date:'Y-m-d H:i:s' }}</td>
         <td>{{ n.description }}</td>
         <td>{{ n.customer }}</td>
         <td>{{ n.system }}</td>

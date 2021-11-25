@@ -15,8 +15,8 @@ class NotificationForm(forms.Form):
 
 class FilterForm(forms.Form):
     time = forms.DateTimeField(label="Events Before",required=False,
-        widget=forms.DateTimeInput(attrs={'type': 'datetime-local','class': 'form-control datetimepicker-input'})
-            )   
+        widget=forms.DateTimeInput(
+            attrs={'type': 'datetime-local','class': 'form-control'}))   
     description = forms.CharField(max_length=1024,required=False,
         widget=forms.TextInput(
             attrs={'class': 'form-control', 'placeholder': 'Contained in description'}))
