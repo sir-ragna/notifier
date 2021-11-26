@@ -26,3 +26,8 @@ class FilterForm(forms.Form):
     system = forms.CharField(max_length=100,label="system",required=False,
         widget=forms.TextInput(
             attrs={'class': 'form-control', 'placeholder': 'System'}))   
+
+class CustomerForm(forms.Form):
+    name = forms.CharField(max_length=100,label="Customer name",
+        widget=forms.TextInput(
+            attrs={'class': 'form-control', 'placeholder': 'Contoso'}))

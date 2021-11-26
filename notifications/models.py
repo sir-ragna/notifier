@@ -11,3 +11,7 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{time}:{customer}:{system}:{description}"
+
+class Customer(models.Model):
+    name = models.CharField(max_length=100, null=False, unique=True)
+    guid = models.CharField(max_length=50, null=False, unique=True)

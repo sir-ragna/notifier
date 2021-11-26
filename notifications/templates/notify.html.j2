@@ -6,7 +6,7 @@
 <hr>
 <h1>Create a notification manually</h1>
 <hr>
-<form action="{% url 'create notification' %}" method="POST">
+<form action="{% url 'create notification' %}" method="POST" enctype="multipart/form-data">
 
 {{ notification_form.as_p }}
 <br>

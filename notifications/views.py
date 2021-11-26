@@ -6,9 +6,11 @@ from django.contrib import messages
 from django.utils import timezone
 
 import datetime
+import uuid
 
 from . import forms
 from . import models
+from . import attachments
 
 
 def index(request):
@@ -27,9 +29,8 @@ def index(request):
     if filter_form.is_valid():
         time = filter_form.cleaned_data['time'] # filter elements before time
         if not time:
-            #time = datetime.datetime.now()
-            time = timezone.now()
-            filter_form.cleaned_data['time'] = time
+            #time = datetime.datetime.now() # version without timezone
+            time = timezone.now()           # version with timezone
         customer = filter_form.cleaned_data['customer']
         system = filter_form.cleaned_data['system']
         description = filter_form.cleaned_data['description']
@@ -50,9 +51,10 @@ def create_notification(request):
     Creates a notification from a POST request.
     """
     if request.method == 'POST':
-        notification_form = forms.NotificationForm(request.POST)
+        notification_form = forms.NotificationForm(request.POST, request.FILES)
         if notification_form.is_valid():
-            time = datetime.datetime.now()
+            #time = datetime.datetime.now()
+            time = timezone.now()
             description = notification_form.cleaned_data['description']
             customer = notification_form.cleaned_data['customer']
             system = notification_form.cleaned_data['system']
@@ -65,7 +67,11 @@ def create_notification(request):
                 source_ip=source_ip,
             )
             notification.save()
+            filename = notification.id
             messages.info(request, "Added notification")
+            # Handle file upload when present
+            if 'attachment' in request.FILES:
+                attachments.save_attachment(customer, filename, request.FILES['attachment'])
         else:
             messages.error(request, "Failed to add notification")
     else:
@@ -73,3 +79,18 @@ def create_notification(request):
     
     return render(request, "notify.html.j2", 
         {'notification_form': notification_form})
+
+def manage_customers(request):
+    if request.method == "POST":
+        customer_form = forms.CustomerForm(request.POST)
+        if customer_form.is_valid():
+            name = customer_form.cleaned_data['name']
+            guid = str(uuid.uuid4()) # generate GUID
+            new_customer = models.Customer(name=name, guid=guid)
+            new_customer.save()
+            messages.info(request, f"Created customer({name})")
+    else:
+        customer_form = forms.CustomerForm()
+    
+    customers = models.Customer.objects.all()
+    return render(request, "customers.html.j2", {'customer_form': customer_form, 'customers': customers})
