@@ -78,11 +78,12 @@ def create_notification(request):
                     source_ip=source_ip,
                 )
                 notification.save()
-                filename = notification.id
+                file_attachment = request.FILES['attachment']
+                filename = f"{notification.id}_{file_attachment.name}"
                 messages.info(request, "Added notification")
                 # Handle file upload when present
                 if 'attachment' in request.FILES:
-                    attachments.save_attachment(customer.name, filename, request.FILES['attachment'])
+                    attachments.save_attachment(customer.name, filename, file_attachment)
             else:
                 messages.error(request, "Error: Customer GUID not found")
         else:
