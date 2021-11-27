@@ -90,11 +90,6 @@ def create_notification(request):
     else:
         notification_form = forms.NotificationForm()
     
-    # customers = models.Customer.objects.all()
-    # options = [(c.guid, c.name) for c in customers]
-    # notification_form.fields['customer'].widget.choices = options #
-    #notification_form['customer'].field.widget.choices = options # also works
-
     return render(request, "notify.html.j2", 
         {'notification_form': notification_form})
 
