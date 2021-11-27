@@ -102,6 +102,8 @@ def manage_customers(request):
             new_customer = models.Customer(name=name, guid=guid)
             new_customer.save()
             messages.info(request, f"Created customer({name})")
+        else:
+            messages.error(request, "Failed to create customer")
     else:
         customer_form = forms.CustomerForm()
     

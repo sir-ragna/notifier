@@ -3,30 +3,86 @@
 {% block head %}
 <style>
 /* Fix example code styling white-space:pre-line; pre-wrap; */
-pre { white-space: pre-line; }
+pre { white-space: pre-wrap; }
+code { background: #f0f0f0; display:block; }
 </style>
 {% endblock head %}
+
 {% block content %}
 <a href="{% url 'index' %}">Back to main page</a>
 <hr>
 <h1>Create a notification</h1>
+
 <hr>
 <h2>Code example</h2>
-<pre><code id="example-code"></code></pre>
-<h2>Manually</h2>
-<form action="{% url 'create notification' %}" method="POST" enctype="multipart/form-data">
+<p>Copy pastable one-liner.</p>
+<pre><code id="example-code" class="border border-dark"></code></pre>
 
-{{ notification_form.as_p }}
-<br>
-<button class="btn btn-primary" type="submit">submit</button>
+<h2>Manually</h2>
+
+<form action="{% url 'create notification' %}" method="POST" enctype="multipart/form-data">
+    {{ notification_form.as_p }}
+    <br>
+    <button class="btn btn-primary" type="submit">submit</button>
 </form>
+
+<hr>
+<h2>Example with file upload</h2>
+
+<p>Uploading a file requires a bit more work.</p>
+
+<pre><code class="border border-dark"
+>Function New-Notification
+{
+    [CmdletBinding()]
+    param(
+        [Parameter(Mandatory=$False)][string]$Url = "http://192.168.0.148:8000/notify",
+        [Parameter(Mandatory=$True)][string]$description,
+        [Parameter(Mandatory=$True)][string]$customer_guid,
+        [Parameter(Mandatory=$True)][string]$system,
+        [Parameter(Mandatory=$False)][string]$attachment_path = ""
+    )
+
+    $fileEnc = "";
+    if ($attachment_path -ne "") {
+        $fileBytes = [System.IO.File]::ReadAllBytes($attachment_path);
+        $fileEnc = [System.Text.Encoding]::GetEncoding('UTF-8').GetString($fileBytes);
+    }
+
+    $boundary = [System.Guid]::NewGuid().ToString(); 
+    $CRLF = "`r`n";
+    $body = (
+        "--$boundary",
+        "Content-Disposition: form-data; name=`"description`"",
+        "",
+        "$description",
+        "--$boundary",
+        "Content-Disposition: form-data; name=`"customer`"",
+        "",
+        "$customer_guid",
+        "--$boundary",
+        "Content-Disposition: form-data; name=`"system`"",
+        "",
+        "$system",
+        "--$boundary",
+        "Content-Disposition: form-data; name=`"attachment`"; filename=`"$attachment_path`"",
+        "Content-Type: application/octet-stream",
+        "",
+        "$fileEnc",
+        "--$boundary--"
+    ) -join $CRLF
+
+    Invoke-RestMethod -Uri $Url -Method POST -ContentType "multipart/form-data; boundary=`"$boundary`"" -Body $body -Verbose
+}
+
+New-Notification -url "http://192.168.0.148:8000/notify" -description "something went wrong" -system "the mainframe" -customer_guid "a2ccb709-c8f3-4df7-b5f5-f8492bb65de8"  -attachment_path "/mnt/Create-Notification.ps1"
+        </code></pre>
 
 <script>
 let description = document.getElementById('id_description')
 let system = document.getElementById('id_system')
 let customer = document.getElementById('id_customer')
 function updateExampleCode() {
-    console.log("hello");
     let example = document.getElementById('example-code');
     let url = window.location;
     example.innerHTML = `Invoke-WebRequest -Uri "${url}" -Method POST -Body @{description='${description.value}';customer='${customer.value}';system="${system.value}"}`;
