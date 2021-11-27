@@ -41,7 +41,7 @@
         <td>{{ n.id }}</td>
         <td>{{ n.time | date:'Y-m-d H:i:s' }}</td>
         <td>{{ n.description }}</td>
-        <td>{{ n.customer }}</td>
+        <td>{{ n.customer.name }}</td>
         <td>{{ n.system }}</td>
     </tr>
 {% endfor %}

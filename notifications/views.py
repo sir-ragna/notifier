@@ -31,10 +31,18 @@ def index(request):
         if not time:
             #time = datetime.datetime.now() # version without timezone
             time = timezone.now()           # version with timezone
-        customer = filter_form.cleaned_data['customer']
+        customer_name = filter_form.cleaned_data['customer']
         system = filter_form.cleaned_data['system']
         description = filter_form.cleaned_data['description']
-        notifications = models.Notification.objects.filter(customer__icontains=customer, system__icontains=system, description__icontains=description, time__lte=time).order_by('-time')[page * amount:(page + 1) * amount]
+
+        customer_objects = models.Customer.objects.filter(name__icontains=customer_name)
+        notifications = models.Notification.objects.filter(
+            customer__in=customer_objects,      # 
+            system__icontains=system,           # contains, case insensitive match
+            description__icontains=description, #
+            time__lte=time                      # less than, only older events
+            ).order_by('-time'
+            )[page * amount:(page + 1) * amount]
     else:
         notifications = models.Notification.objects.order_by('-time')[page * amount:(page + 1) * amount]
     return render(request, "index.html.j2", {
@@ -53,30 +61,40 @@ def create_notification(request):
     if request.method == 'POST':
         notification_form = forms.NotificationForm(request.POST, request.FILES)
         if notification_form.is_valid():
-            #time = datetime.datetime.now()
-            time = timezone.now()
+            #time = datetime.datetime.now() # 
+            time = timezone.now()           # Datetime with timezone
             description = notification_form.cleaned_data['description']
-            customer = notification_form.cleaned_data['customer']
-            system = notification_form.cleaned_data['system']
-            source_ip = request.META['REMOTE_ADDR']
-            notification = models.Notification(
-                time=time,
-                description=description,
-                customer=customer,
-                system=system,
-                source_ip=source_ip,
-            )
-            notification.save()
-            filename = notification.id
-            messages.info(request, "Added notification")
-            # Handle file upload when present
-            if 'attachment' in request.FILES:
-                attachments.save_attachment(customer, filename, request.FILES['attachment'])
+            customer_guid = notification_form.cleaned_data['customer']
+            customer_objects = models.Customer.objects.filter(guid=customer_guid)
+            if len(customer_objects) > 0:
+                customer = customer_objects[0]
+                system = notification_form.cleaned_data['system']
+                source_ip = request.META['REMOTE_ADDR']
+                notification = models.Notification(
+                    time=time,
+                    description=description,
+                    customer=customer,
+                    system=system,
+                    source_ip=source_ip,
+                )
+                notification.save()
+                filename = notification.id
+                messages.info(request, "Added notification")
+                # Handle file upload when present
+                if 'attachment' in request.FILES:
+                    attachments.save_attachment(customer.name, filename, request.FILES['attachment'])
+            else:
+                messages.error(request, "Error: Customer GUID not found")
         else:
             messages.error(request, "Failed to add notification")
     else:
         notification_form = forms.NotificationForm()
     
+    # customers = models.Customer.objects.all()
+    # options = [(c.guid, c.name) for c in customers]
+    # notification_form.fields['customer'].widget.choices = options #
+    #notification_form['customer'].field.widget.choices = options # also works
+
     return render(request, "notify.html.j2", 
         {'notification_form': notification_form})
 
@@ -93,4 +111,8 @@ def manage_customers(request):
         customer_form = forms.CustomerForm()
     
     customers = models.Customer.objects.all()
-    return render(request, "customers.html.j2", {'customer_form': customer_form, 'customers': customers})
+    
+    return render(request, "customers.html.j2", {
+        'customer_form': customer_form, 
+        'customers': customers
+    })
