@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-*+cf_t)1-$#-^gz^rn#qs3$o69i&2c84)c%jsti^=6vs_zdkx_
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["*"]
 
 
 # Application definition
@@ -78,7 +78,7 @@ WSGI_APPLICATION = 'notifier.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'NAME': BASE_DIR / 'database/db.sqlite3',
     }
 }
 
