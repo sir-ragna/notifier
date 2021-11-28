@@ -6,9 +6,13 @@
 ## Enter the virtual environment
 # source venv/bin/activate
 ## Install deps
-# pip -r requirements.txt
+# pip install -r requirements.txt
 
 source venv/bin/activate
+
+export DEBUG=TRUE
+export SECRET_KEY='django-insecure-a62c754d-d754-4c40-a81a-73e6bff62ac6'
+export TIME_ZONE='CET'
 
 python manage.py runserver
 
