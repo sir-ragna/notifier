@@ -1,10 +1,12 @@
 
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
+from django.http import FileResponse
 
 from pathlib import Path
 
 def save_attachment(customer, filename, filehandle):
+    """Saves an attachment. Returns the file path on success, None on failure"""
     customer = customer.replace('/', '')
     
     directory = f"attachments/{customer}/"
@@ -15,3 +17,8 @@ def save_attachment(customer, filename, filehandle):
         with default_storage.open(filename, "wb+") as destination:
             for chunk in filehandle.chunks():
                 destination.write(chunk)
+        return filename
+    return None
+
+def download_attachment(request, filepath):
+    return FileResponse(default_storage.open(filepath, 'rb'))

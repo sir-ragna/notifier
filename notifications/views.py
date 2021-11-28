@@ -3,6 +3,7 @@ from django.http import HttpResponse
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 
 import datetime
@@ -12,7 +13,7 @@ from . import forms
 from . import models
 from . import attachments
 
-
+@login_required(login_url='/admin')
 def index(request):
     """
     Shows the last 100 notifications (with infinite scroll?)
@@ -48,7 +49,7 @@ def index(request):
     return render(request, "index.html.j2", {
         'notifications': notifications,
         'nextpage': page + 1,
-        'previous': page - 1,
+        'previous': 0 if page - 1 < 0 else page - 1,
         'amount': amount,
         'filter_form': filter_form,
     })
@@ -57,6 +58,8 @@ def index(request):
 def create_notification(request):
     """
     Creates a notification from a POST request.
+    When surfing to this page we'll get a form that can be used to manually 
+    create a _notification_. The page also helps with scripting these events.
     """
     if request.method == 'POST':
         notification_form = forms.NotificationForm(request.POST, request.FILES)
@@ -83,7 +86,9 @@ def create_notification(request):
                 if 'attachment' in request.FILES:
                     file_attachment = request.FILES['attachment']
                     filename = f"{notification.id}_{file_attachment.name}"
-                    attachments.save_attachment(customer.name, filename, file_attachment)
+                    file_path = attachments.save_attachment(customer.name, filename, file_attachment)
+                    notification.attachment_path = file_path
+                    notification.save()
             else:
                 messages.error(request, "Error: Customer GUID not found")
         else:
@@ -94,6 +99,7 @@ def create_notification(request):
     return render(request, "notify.html.j2", 
         {'notification_form': notification_form})
 
+@login_required(login_url='/admin')
 def manage_customers(request):
     if request.method == "POST":
         customer_form = forms.CustomerForm(request.POST)
@@ -114,3 +120,8 @@ def manage_customers(request):
         'customer_form': customer_form, 
         'customers': customers
     })
+
+@login_required(login_url='/admin')
+def download_attachment(request, customer, filename):
+    filepath = f"attachments/{customer}/{filename}"
+    return attachments.download_attachment(request, filepath)

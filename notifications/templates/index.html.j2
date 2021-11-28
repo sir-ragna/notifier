@@ -30,19 +30,27 @@
 
 <table class="table">
 <tr>
-    <th>id</td>
+    <!-- <th>id</td> -->
     <th>Time</th>
     <th>Description</th>
     <th>Customer</th>
     <th>System</th>
+    <th>📎</th>
 </tr>
 {% for n in notifications %}
     <tr>
-        <td>{{ n.id }}</td>
+        <!-- <td>{{ n.id }}</td> -->
         <td>{{ n.time | date:'Y-m-d H:i:s' }}</td>
         <td>{{ n.description }}</td>
         <td>{{ n.customer.name }}</td>
         <td>{{ n.system }}</td>
+        <td>
+        {% if n.attachment_path %}
+            <a href="{{ n.attachment_path }}" download>Download📎</a>
+        {% else %}
+            ❌
+        {% endif %}
+        </td>
     </tr>
 {% endfor %}
 
