@@ -21,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = environ.get('SECRET_KEY') if environ.get('SECRET_KEY') else 'f3bb26e4-8ce8-4141-9b3a-9fc715753f2a'
+SECRET_KEY = environ.get('SECRET_KEY', default='f3bb26e4-8ce8-4141-9b3a-9fc715753f2a')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True if environ.get('DEBUG') == 'TRUE' or environ.get('DEBUG') == '1' else False
@@ -122,6 +122,8 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = 'nginx/static/' # static files to nginx/static/ when executing:
+                              # python manage.py collectstatic --no-input
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/3.2/ref/settings/#default-auto-field

@@ -13,8 +13,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . /app
 
 # Create required directories
-RUN [[ -d attachments ]] or mkdir attachments 2>/dev/null
-RUN [[ -d database ]] or mkdir database 2>/dev/null
+RUN if [ ! -d attachments ] ; then mkdir attachments 2>/dev/null ; fi
+RUN if [ ! -d database ] ; then  mkdir database 2>/dev/null ; fi 
 
 EXPOSE 8000/tcp
 VOLUME ["/app/database"]
