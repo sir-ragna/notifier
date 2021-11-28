@@ -15,6 +15,11 @@ COPY . /app
 EXPOSE 8000/tcp
 VOLUME ["/app/database"]
 
+# Configure time as Central European Time
+ENV TIME_ZONE CET
+
+# WARNING OVERWRITE THESE ENVIRONMENT VARIABLES !
+ENV SECRET_KEY b2038d34-a781-4c99-8c30-c62664f9ab77
+ENV DEBUG 1
+
 CMD "./entrypoint.sh"
-
-
