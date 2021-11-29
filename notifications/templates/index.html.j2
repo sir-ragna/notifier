@@ -11,6 +11,8 @@
         >Next</a>
         <br><br>
         <a href="{% url 'manage customers' %}">Customers</a>
+        <br>
+        <a href="{% url 'create notification' %}">Manually create a notification</a>
     </div>
     <div class="col">
     <form method="GET">
@@ -43,7 +45,7 @@
         <td>{{ n.time | date:'Y-m-d H:i:s' }}</td>
         <td>{{ n.description }}</td>
         <td>{{ n.customer.name }}</td>
-        <td>{{ n.system }}</td>
+        <td title="{{ n.source_ip }}">{{ n.system }}</td>
         <td>
         {% if n.attachment_path %}
             <a href="{{ n.attachment_path }}" download>Download📎</a>
@@ -56,9 +58,22 @@
 
 </table>
 
-
+<div class="row">
+    <div class="col">
+    </div>
+    <div class="col-md-auto">
+        <a href="{% url 'index' %}?amount={{ amount }}&page={{ previous }}"
+        >Previous</a>
+    </div>
+    <div class="col">
+    </div>
+    <div class="col-md-auto">
+        <a href="{% url 'index' %}?amount={{ amount }}&page={{ nextpage }}"
+        >Next</a>
+    </div>
+    <div class="col">
+    </div>
+</div>
 <hr>
-<a href="{% url 'create notification' %}"
->Manually create a notification</a>
 
 {% endblock content %}
