@@ -26,7 +26,7 @@ def index(request):
         if 'page' in request.GET:
             page = abs(int(request.GET['page']))
     else:
-        amount = 10
+        amount = 50
     if filter_form.is_valid():
         time = filter_form.cleaned_data['time'] # filter elements before time
         if not time:
@@ -61,6 +61,7 @@ def create_notification(request):
     When surfing to this page we'll get a form that can be used to manually 
     create a _notification_. The page also helps with scripting these events.
     """
+    ret_status = 200
     if request.method == 'POST':
         notification_form = forms.NotificationForm(request.POST, request.FILES)
         if notification_form.is_valid():
@@ -91,13 +92,15 @@ def create_notification(request):
                     notification.save()
             else:
                 messages.error(request, "Error: Customer GUID not found")
+                ret_status = 404
         else:
             messages.error(request, "Failed to add notification")
+            ret_status = 500
     else:
         notification_form = forms.NotificationForm()
     
-    return render(request, "notify.html.j2", 
-        {'notification_form': notification_form})
+    return render(request, "notify.html.j2",
+        {'notification_form': notification_form}, status=ret_status)
 
 @login_required(login_url='/admin')
 def manage_customers(request):
