@@ -17,5 +17,5 @@ export TIME_ZONE='CET'
 [[ -d attachments ]] || mkdir attachments 2>/dev/null
 [[ -d database ]] || mkdir database 2>/dev/null
 
-python manage.py runserver
+python manage.py runserver 0.0.0.0:8000
 
