@@ -1,10 +1,11 @@
 
 from django.http import HttpResponse
-from django.shortcuts import render
+from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.contrib import auth
 
 import datetime
 import uuid
@@ -128,3 +129,7 @@ def manage_customers(request):
 def download_attachment(request, customer, filename):
     filepath = f"attachments/{customer}/{filename}"
     return attachments.download_attachment(request, filepath)
+
+def logout(request):
+    auth.logout(request)
+    return redirect('index')
