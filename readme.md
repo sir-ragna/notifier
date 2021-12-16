@@ -51,3 +51,38 @@ http://website/notifications?desc="abc"&system="myserver"
 # Attachments
 
 Allow downloading of attachments.
+
+# Development setup
+
+Requires python 3. Instantiate the virtual environment and activate it.
+
+```sh
+python -m venv venv
+source venv/bin/activate
+```
+
+Apply the migrations
+
+```sh
+python manage.py migrate
+```
+
+Create a new super user.
+
+```sh
+python manage.py createsuperuser
+```
+
+Set the parameters.
+
+```sh
+export DEBUG=TRUE  # Activate debugging
+export SECRET_KEY='django-insecure-a62c754d-d754-4c40-a81a-73e6bff62ac6' # set a secret key
+export TIME_ZONE='CET' # Set the timezone
+```
+
+Start the server in DEV mode.
+
+```sh
+python manage.py runserver
+```
