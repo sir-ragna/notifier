@@ -9,8 +9,7 @@ code { display:block; }
 {% endblock head %}
 
 {% block content %}
-<a href="{% url 'index' %}">Back to main page</a>
-<hr>
+
 <h1>Create a notification</h1>
 
 <hr>
@@ -21,7 +20,27 @@ code { display:block; }
 <h2>Manually</h2>
 
 <form action="{% url 'create notification' %}" method="POST" enctype="multipart/form-data">
-    {{ notification_form.as_p }}
+    {% if user.is_authenticated %}
+        <!-- Only signed in users are allowed to have a dropdown that contains all the customer GUIDs -->
+        {{ notification_form.as_p }}
+    {% else %}
+        <p>
+        {{ notification_form.description.label }}
+        {{ notification_form.description }}
+        </p>
+        <p>
+        {{ notification_form.customer.label }}
+        <input class="form-control" maxlength="100" id="id_customer" type="text" name="customer" placeholder="<customer guid>" required>
+        </p>
+        <p>
+        {{ notification_form.system.label }}
+        {{ notification_form.system }}
+        </p>
+        <p>
+        {{ notification_form.attachment.label }}
+        {{ notification_form.attachment }} <br>
+        </p>
+    {% endif %}
     <br>
     <button class="btn btn-primary" type="submit">submit</button>
 </form>
@@ -30,7 +49,7 @@ code { display:block; }
 <h2>Example with file upload</h2>
 
 <p>Uploading a file requires a bit more work.</p>
-
+<!--
 <pre><code class="border border-dark"
 >Function New-Notification
 {
@@ -77,7 +96,7 @@ code { display:block; }
 
 New-Notification -url "http://192.168.0.148:8000/notify" -description "something went wrong" -system "the mainframe" -customer_guid "a2ccb709-c8f3-4df7-b5f5-f8492bb65de8"  -attachment_path "/mnt/Create-Notification.ps1"
         </code></pre>
-
+-->
 <script>
 let description = document.getElementById('id_description')
 let system = document.getElementById('id_system')
@@ -85,13 +104,14 @@ let customer = document.getElementById('id_customer')
 function updateExampleCode() {
     let example = document.getElementById('example-code');
     let url = window.location;
-    example.innerHTML = `Invoke-WebRequest -Uri "${url}" -Method POST -Body @{description='${description.value}';customer='${customer.value}';system="${system.value}"}`;
+    example.innerHTML = `Invoke-WebRequest -Uri "${url}" -Method POST -Body @{description="${description.value}";customer='${customer.value}';system="${system.value}"}`;
 }
 description.addEventListener("input", updateExampleCode);
 description.addEventListener("change", updateExampleCode);
 system.addEventListener("input", updateExampleCode);
 system.addEventListener("change", updateExampleCode);
 customer.addEventListener("change", updateExampleCode);
+customer.addEventListener("input", updateExampleCode);
 document.addEventListener('DOMContentLoaded', updateExampleCode);
 /* Invoke-WebRequest -Uri "http://192.168.0.148:8000/notify" -Method POST -Body @{description='Detected suspicious activity in the log';customer='a2ccb709-c8f3-4df7-b5f5-f8492bb65de8';system="cisco router"} */
 </script>
