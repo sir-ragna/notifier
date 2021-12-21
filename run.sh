@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 ## HOW TO SET UP
 ## To create the venv environment
