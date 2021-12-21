@@ -2,8 +2,8 @@
 
 {% block content %}
 
-<div class="row">
-    <div class="col">
+<div class="row justify-content-between">
+    <div class="col col-auto">
         <a href="{% url 'index' %}?amount={{ amount }}&page={{ previous }}"
         >Previous</a>
         <br>
@@ -14,13 +14,12 @@
         <br>
         <a href="{% url 'create notification' %}">Manually create a notification</a>
     </div>
-    <div class="col">
+    <div class="col col-auto">
     <form method="GET">
     <table>
         {{ filter_form.as_table }}
-        {% csrf_token %}
         <tr>
-        <td><a href="{% url 'index' %}"><button type="button" class="btn btn-secondary">Reset</button></a></td>
+        <td><a href="{% url 'index' %}" class="btn btn-secondary">Reset</a></td>
         <td><button class="btn btn-primary" type="submit">Apply</button></td>
         </tr>
     </table>
@@ -37,7 +36,7 @@
     <th>Description</th>
     <th>Customer</th>
     <th>System</th>
-    <th>📎</th>
+    <th title="attachments">📎</th>
 </tr>
 {% for n in notifications %}
     <tr>
@@ -50,7 +49,7 @@
         {% if n.attachment_path %}
             <a href="{{ n.attachment_path }}" download>Download📎</a>
         {% else %}
-            ❌
+            _
         {% endif %}
         </td>
     </tr>
