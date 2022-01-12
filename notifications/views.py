@@ -1,11 +1,13 @@
 
 from django.http import HttpResponse
+from django.http.response import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib import auth
+from django.core.serializers import serialize
 
 import datetime
 import uuid
@@ -19,7 +21,9 @@ def index(request):
     """
     Shows the last 100 notifications (with infinite scroll?)
     """
-    page = 0
+    page = 0   # Default page that contains the last events
+    min_id = int(request.GET.get('from', '0')) # Minimum ID
+
     filter_form = forms.FilterForm(request.GET)
 
     if request.method == 'GET' and 'amount' in request.GET:
@@ -42,11 +46,22 @@ def index(request):
             customer__in=customer_objects,      # 
             system__icontains=system,           # contains, case insensitive match
             description__icontains=description, #
-            time__lte=time                      # less than, only older events
+            time__lte=time,                     # less than, only older events
+            id__gt=min_id
             ).order_by('-time'
             )[page * amount:(page + 1) * amount]
     else:
-        notifications = models.Notification.objects.order_by('-time')[page * amount:(page + 1) * amount]
+        notifications = models.Notification.objects.filter(id__gt=min_id) \
+            .order_by('-time')[page * amount:(page + 1) * amount]
+    
+    if request.content_type == 'application/json':
+        data = {
+            'customers': list(models.Customer.objects.all().values()),
+            'notifications': list(notifications.values())
+        }
+        return JsonResponse(data)
+        #return HttpResponse(serialize('json', notifications))
+    
     return render(request, "index.html.j2", {
         'notifications': notifications,
         'nextpage': page + 1,

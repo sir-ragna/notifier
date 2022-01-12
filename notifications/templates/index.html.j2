@@ -30,18 +30,21 @@
 <hr>
 
 <table class="table">
-<tr>
-    <!-- <th>id</td> -->
-    <th>Time</th>
-    <th>Description</th>
-    <th>Customer</th>
-    <th>System</th>
-    <th title="attachments">📎</th>
-</tr>
+<thead>
+    <tr>
+        <!-- <th>id</td> -->
+        <th>Time</th>
+        <th>Description</th>
+        <th>Customer</th>
+        <th>System</th>
+        <th title="attachments">📎</th>
+    </tr>
+<thead>
+<tbody id="notifications_lines">
 {% for n in notifications %}
     <tr>
         <!-- <td>{{ n.id }}</td> -->
-        <td>{{ n.time | date:'Y-m-d H:i:s' }}</td>
+        <td title="{{ n.id }}">{{ n.time | date:'Y-m-d H:i:s' }}</td>
         <td>{{ n.description }}</td>
         <td>{{ n.customer.name }}</td>
         <td title="{{ n.source_ip }}">{{ n.system }}</td>
@@ -54,7 +57,7 @@
         </td>
     </tr>
 {% endfor %}
-
+</tbody>
 </table>
 
 <div class="row">
@@ -76,3 +79,90 @@
 <hr>
 
 {% endblock content %}
+
+{% block footer %}
+<script>
+let total_new_notifications = 0;
+
+function retrieve_notifications() {
+    let notifications_tbl = document.getElementById("notifications_lines");
+    let id = 0;
+    if (notifications_tbl.rows.length > 0) {
+        let top = notifications_tbl.rows[0];
+        id = top.firstElementChild.title
+    }
+
+    let url = window.location + '';
+    if (url.indexOf('?') == -1) {
+        url += '?from=' + id;
+    } else {
+        url += '&from=' + id;
+    }
+    fetch(url, {headers: { 'Content-Type': 'application/json' } }
+    ).then(result => result.json()
+    ).then(function(data){
+        let notifications = data.notifications;
+        let i = notifications.length;
+        total_new_notifications += i;
+        while (i--) //for(let i = 0; i < notifications.length; ++i)
+        {
+            let notification = notifications[i];
+            let tr = document.createElement('tr');
+            // Set row styling
+            tr.className = "bg-info";
+
+            let time = document.createElement('td');
+            time.innerHTML = notification.time.replace('T', ' ').split('.')[0];
+                                            /* Fix time notation */
+            time.title = notification.id;
+            tr.appendChild(time);
+
+            let description = document.createElement('td');
+            description.innerHTML = notification.description;
+            tr.appendChild(description);
+
+            let customerName = document.createElement('td');   
+            for(let j = 0; j < data.customers.length; ++j)
+            {
+                if (data.customers[j].id == notification.customer_id) {
+                    customerName.innerHTML = data.customers[j].name;
+                    break;
+                }
+            }
+            tr.appendChild(customerName);
+
+            let system = document.createElement('td');
+            system.innerHTML = notification.system;
+            system.title = notification.source_ip;
+            tr.appendChild(system);
+
+            let attachment = document.createElement('td');
+            if (notification.attachment_path) {
+                attachment.innerHTML = "<a download=\"\" href=\"" + notification.attachment_path + "\">Download📎</a>";
+            } else {
+                attachment.innerHTML = "-";
+            }
+            tr.appendChild(attachment);
+
+            notifications_tbl.prepend(tr);
+        }
+
+        if (total_new_notifications > 0) {
+            document.title = notifications.length + " NEW notifications";
+        }
+    });
+
+
+    // Call the retrieve notifications function again after 20 seconds
+    setTimeout(retrieve_notifications, 20000);
+}
+
+setTimeout(retrieve_notifications, 20000);
+
+window.onfocus = function() {
+    document.title = "Notifier";
+    total_new_notifications = 0;
+}
+
+</script>
+{% endblock footer %}
