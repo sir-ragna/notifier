@@ -45,7 +45,7 @@
     <tr>
         <!-- <td>{{ n.id }}</td> -->
         <td title="{{ n.id }}">{{ n.time | date:'Y-m-d H:i:s' }}</td>
-        <td>{{ n.description }}</td>
+        <td>{{ n.description | linebreaksbr }}</td>
         <td>{{ n.customer.name }}</td>
         <td title="{{ n.source_ip }}">{{ n.system }}</td>
         <td>
