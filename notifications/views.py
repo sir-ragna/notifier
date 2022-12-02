@@ -1,5 +1,4 @@
 
-from django.http import HttpResponse
 from django.http.response import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -7,7 +6,7 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.contrib import auth
-from django.core.serializers import serialize
+
 
 import datetime
 import uuid
@@ -63,6 +62,69 @@ def index(request):
         #return HttpResponse(serialize('json', notifications))
     
     return render(request, "index.html.j2", {
+        'notifications': notifications,
+        'nextpage': page + 1,
+        'previous': 0 if page - 1 < 0 else page - 1,
+        'amount': amount,
+        'filter_form': filter_form,
+    })
+
+@login_required(login_url='/admin')
+def delete_notifications(request):
+    """
+    This page will show notifications and allow us to delete notifications.
+    """
+
+    # Check if we get a post to delete an event
+    if request.method == 'POST':
+        action = request.POST.get('action', '')
+        id = int(request.POST.get('id', -1))
+        if action == 'delete' and id > 0:
+            notification = models.Notification.objects.get(id=id)
+            print("Notification to delete", notification)
+            print(notification.delete())
+            message = f"Succesfully removed notification (id:{id})."
+            if not notification.attachment_path is None :
+                message += f" removing attachment of size {attachments.size_attachment(notification.attachment_path)} bytes"
+                attachments.remove_attachment(notification.attachment_path)
+            messages.success(request, message)
+
+    # Retrieve the last events.
+
+    page = 0   # Default page that contains the last events
+    min_id = int(request.GET.get('from', '0')) # Minimum ID
+
+    filter_form = forms.FilterForm(request.GET)
+
+    if request.method == 'GET' and 'amount' in request.GET:
+        amount = abs(int(request.GET['amount']))
+        if 'page' in request.GET:
+            page = abs(int(request.GET['page']))
+    else:
+        amount = 50
+    if filter_form.is_valid():
+        time = filter_form.cleaned_data['time'] # filter elements before time
+        if not time:
+            #time = datetime.datetime.now() # version without timezone
+            time = timezone.now()           # version with timezone
+        customer_name = filter_form.cleaned_data['customer']
+        system = filter_form.cleaned_data['system']
+        description = filter_form.cleaned_data['description']
+
+        customer_objects = models.Customer.objects.filter(name__icontains=customer_name)
+        notifications = models.Notification.objects.filter(
+            customer__in=customer_objects,      # 
+            system__icontains=system,           # contains, case insensitive match
+            description__icontains=description, #
+            time__lte=time,                     # less than, only older events
+            id__gt=min_id
+            ).order_by('-time'
+            )[page * amount:(page + 1) * amount]
+    else:
+        notifications = models.Notification.objects.filter(id__gt=min_id) \
+            .order_by('-time')[page * amount:(page + 1) * amount]
+
+    return render(request, "delete_notifications.html.j2", {
         'notifications': notifications,
         'nextpage': page + 1,
         'previous': 0 if page - 1 < 0 else page - 1,

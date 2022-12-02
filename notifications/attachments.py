@@ -20,5 +20,11 @@ def save_attachment(customer, filename, filehandle):
         return filename
     return None
 
+def remove_attachment(filepath):
+    return default_storage.delete(filepath)
+
+def size_attachment(filepath):
+    return default_storage.size(filepath)
+
 def download_attachment(request, filepath):
     return FileResponse(default_storage.open(filepath, 'rb'))

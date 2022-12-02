@@ -1,0 +1,82 @@
+{% extends "base.html.j2" %}
+
+{% block content %}
+
+<div class="row justify-content-between">
+    <div class="col col-auto">
+        <a href="{% url 'index' %}?amount={{ amount }}&page={{ previous }}"
+        >Previous</a>
+        <br>
+        <a href="{% url 'index' %}?amount={{ amount }}&page={{ nextpage }}"
+        >Next</a>
+        <br><br>
+        <a href="{% url 'manage customers' %}">Customers</a>
+        <br>
+        <a href="{% url 'create notification' %}">Manually create a notification</a>
+    </div>
+    <div class="col col-auto">
+    <form method="GET">
+    <table>
+        {{ filter_form.as_table }}
+        <tr>
+        <td><a href="{% url 'index' %}" class="btn btn-secondary">Reset</a></td>
+        <td><button class="btn btn-primary" type="submit">Apply</button></td>
+        </tr>
+    </table>
+    </form>
+    </div>
+</div>
+
+<hr>
+
+<table class="table">
+<thead>
+    <tr>
+        <!-- <th>id</td> -->
+        <th>Delete</td>
+        <th>Time</th>
+        <th>Description</th>
+        <th>Customer</th>
+        <th>System</th>
+        <th title="attachments">📎</th>
+    </tr>
+<thead>
+<tbody id="notifications_lines">
+{% for n in notifications %}
+    <tr>
+        <!-- <td>{{ n.id }}</td> -->
+        <td><form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="id" value="{{ n.id }}">
+            <input type="hidden" name="action" value="delete">
+            <button type="submit" class="btn btn-danger">Delete</button>
+        </form></td>
+        <td title="{{ n.id }}">{{ n.time | date:'Y-m-d H:i:s' }}</td>
+        <td>{{ n.description | linebreaksbr }}</td>
+        <td>{{ n.customer.name }}</td>
+        <td title="{{ n.source_ip }}">{{ n.system }}</td>
+        <td>{% if n.attachment_path %}📎{% else %}_{% endif %}</td>
+    </tr>
+{% endfor %}
+</tbody>
+</table>
+
+<div class="row">
+    <div class="col">
+    </div>
+    <div class="col-md-auto">
+        <a href="{% url 'index' %}?amount={{ amount }}&page={{ previous }}"
+        >Previous</a>
+    </div>
+    <div class="col">
+    </div>
+    <div class="col-md-auto">
+        <a href="{% url 'index' %}?amount={{ amount }}&page={{ nextpage }}"
+        >Next</a>
+    </div>
+    <div class="col">
+    </div>
+</div>
+<hr>
+
+{% endblock content %}
