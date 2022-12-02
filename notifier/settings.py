@@ -122,7 +122,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.2/howto/static-files/
 
-STATIC_URL = '/static/'
+STATIC_URL = '/static/' # change to 'static/' when migrating to Django 4.0
+                        # https://docs.djangoproject.com/en/4.0/releases/4.0/
 STATIC_ROOT = 'nginx/static/' # static files to nginx/static/ when executing:
                               # python manage.py collectstatic --no-input
 
