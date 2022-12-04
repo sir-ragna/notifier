@@ -110,23 +110,16 @@ Make these bookmarkable.
 
 http://website/notifications?desc="abc"&system="myserver"
 
-# Attachments
-
-Allow downloading of attachments.
 
 # Development setup
 
-Requires python 3. Instantiate the virtual environment and activate it.
+Requires python 3. Instantiate the virtual environment, activate it and install
+the dependencies.
 
 ```sh
 python -m venv venv
 source venv/bin/activate
-```
-
-Apply the migrations
-
-```sh
-python manage.py migrate
+pip install -r requirements
 ```
 
 Create a new superuser.
@@ -135,3 +128,9 @@ Create a new superuser.
 python manage.py createsuperuser
 ```
 
+The **run.sh** script will apply migrations and start the site in debug mode.
+Django will restart itself when you save changes.
+
+```sh
+./run.sh
+```
