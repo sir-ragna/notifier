@@ -101,16 +101,6 @@ static files. To serve static files you are supposed to run an nginx server in
 front. To test this I have a Dockerfile and nginx configuration file in 
 the nginx directory.
 
-
-# Filter system
-
-Filter on customer, system or keywords in description.
-
-Make these bookmarkable.
-
-http://website/notifications?desc="abc"&system="myserver"
-
-
 # Development setup
 
 Requires python 3. Instantiate the virtual environment, activate it and install
