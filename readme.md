@@ -77,6 +77,12 @@ It is best practice to create a separate user for this service.
 useradd -c "notifier service user" -r -d /opt/notifier/ -s "/sbin/nologin" notifier
 ```
 
+Fix the permissions on the working directory.
+
+```
+chown notifier:notifier -R /opt/notifier
+```
+
 Set up a systemd service file.
 The systemd service file should include
 - the required environment variables. TIME_ZONE and SECRET_KEY are required.
