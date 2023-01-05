@@ -161,15 +161,34 @@ More users can be created from the `/admin/` page that is built-into Django.
 
 ![screenshot of the add user screen](screenshots/add-user.png)
 
+## Keeping up-to-date
 
+Because of the simplicity of the current set-up. 
+The following script can be used to install updates.
+
+```sh
+#!/bin/bash
+
+## Update the notifier app to the latest git commit
+pushd notifier # enter notifier dir
+git pull       # pull in the latest changes
+source venv/bin/activate        # activate virtual environment
+pip install -r requirements.txt # install the requirements
+python manage.py migrate        # perform database updates
+popd                            # return to previous dir
+chown -R notifier:notifier notifier # set the permissions right
+systemctl restart notifier          # restart the service
+```
 
 ## Containers
 
-Build the container
+Optionally, Notifier can be run inside an OCI container with either docker or podman.
+
+Build the container using buildah.
 
     buildah build --layers --tag="notifier:v0.6" .  
 
-Run the container
+Run the container using podman.
 
     podman run --rm -it -p 8000:8000 -v $(pwd)/database:/app/database notifier:v0.6
 
