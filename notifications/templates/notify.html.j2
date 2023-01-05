@@ -4,7 +4,6 @@
 <style>
 /* Fix example code styling white-space:pre-line; pre-wrap; */
 pre { white-space: pre-wrap; }
-code { display:block; }
 </style>
 {% endblock head %}
 
@@ -14,10 +13,13 @@ code { display:block; }
 
 <hr>
 <h2>Code example</h2>
-<p>Copy pastable one-liner.</p>
-<pre><code id="example-code" class="border border-dark"></code></pre>
-
-<h2>Manually</h2>
+<p>Copy pastable one-liner for your convenience.</p>
+<pre><code id="example-code" style="display: block;" class="border border-dark"></code></pre>
+<p>
+    <small><b>Why do we include the <a href="https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/invoke-webrequest?view=powershell-5.1&WT.mc_id=ps-gethelp#-usebasicparsing"><code>-UseBasicParsing</code></a> flag?</b>
+    This will prevent <code>Invoke-WebRequest</code> from parsing the response HTML. On systems where Internet Explorer(or Edge) is not installed or initialized, Invoke-WebRequest throws an exception if this flag is not included.</small>
+</p>
+<h2>Manual Notification Form</h2>
 
 <form action="{% url 'create notification' %}" method="POST" enctype="multipart/form-data">
     {% if user.is_authenticated %}
@@ -42,61 +44,11 @@ code { display:block; }
         </p>
     {% endif %}
     <br>
-    <button class="btn btn-primary" type="submit">submit</button>
+    <button class="btn btn-primary" type="submit">Notify</button>
 </form>
 
 <hr>
-<h2>Example with file upload</h2>
 
-<p>Uploading a file requires a bit more work.</p>
-<!--
-<pre><code class="border border-dark"
->Function New-Notification
-{
-    [CmdletBinding()]
-    param(
-        [Parameter(Mandatory=$False)][string]$Url = "http://192.168.0.148:8000/notify",
-        [Parameter(Mandatory=$True)][string]$description,
-        [Parameter(Mandatory=$True)][string]$customer_guid,
-        [Parameter(Mandatory=$True)][string]$system,
-        [Parameter(Mandatory=$False)][string]$attachment_path = ""
-    )
-
-    $fileEnc = "";
-    if ($attachment_path -ne "") {
-        $fileBytes = [System.IO.File]::ReadAllBytes($attachment_path);
-        $fileEnc = [System.Text.Encoding]::GetEncoding('UTF-8').GetString($fileBytes);
-    }
-
-    $boundary = [System.Guid]::NewGuid().ToString(); 
-    $CRLF = "`r`n";
-    $body = (
-        "--$boundary",
-        "Content-Disposition: form-data; name=`"description`"",
-        "",
-        "$description",
-        "--$boundary",
-        "Content-Disposition: form-data; name=`"customer`"",
-        "",
-        "$customer_guid",
-        "--$boundary",
-        "Content-Disposition: form-data; name=`"system`"",
-        "",
-        "$system",
-        "--$boundary",
-        "Content-Disposition: form-data; name=`"attachment`"; filename=`"$attachment_path`"",
-        "Content-Type: application/octet-stream",
-        "",
-        "$fileEnc",
-        "--$boundary--"
-    ) -join $CRLF
-
-    Invoke-RestMethod -Uri $Url -Method POST -ContentType "multipart/form-data; boundary=`"$boundary`"" -Body $body -Verbose
-}
-
-New-Notification -url "http://192.168.0.148:8000/notify" -description "something went wrong" -system "the mainframe" -customer_guid "a2ccb709-c8f3-4df7-b5f5-f8492bb65de8"  -attachment_path "/mnt/Create-Notification.ps1"
-        </code></pre>
--->
 <script>
 let description = document.getElementById('id_description')
 let system = document.getElementById('id_system')
@@ -104,7 +56,8 @@ let customer = document.getElementById('id_customer')
 function updateExampleCode() {
     let example = document.getElementById('example-code');
     let url = window.location;
-    example.innerHTML = `Invoke-WebRequest -Uri "${url}" -Method POST -Body @{description="${description.value}";customer='${customer.value}';system="${system.value}"}`;
+    let systemPreviewValue = system.value === "" ? "$($env:COMPUTERNAME)" : system.value;
+    example.innerHTML = `Invoke-WebRequest -Uri "${url}" -UseBasicParsing -Method POST -Body @{description="${description.value}";customer='${customer.value}';system="${systemPreviewValue}"}`;
 }
 description.addEventListener("input", updateExampleCode);
 description.addEventListener("change", updateExampleCode);
@@ -113,7 +66,6 @@ system.addEventListener("change", updateExampleCode);
 customer.addEventListener("change", updateExampleCode);
 customer.addEventListener("input", updateExampleCode);
 document.addEventListener('DOMContentLoaded', updateExampleCode);
-/* Invoke-WebRequest -Uri "http://192.168.0.148:8000/notify" -Method POST -Body @{description='Detected suspicious activity in the log';customer='a2ccb709-c8f3-4df7-b5f5-f8492bb65de8';system="cisco router"} */
 </script>
 
 {% endblock content %}
